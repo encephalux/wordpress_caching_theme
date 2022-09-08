@@ -1,7 +1,8 @@
 <?php
 const _RUN_MODE_ = "production";
 const _API_TOKEN_ = "api_token";
-const _API_BASE_URL_ = _RUN_MODE_ === "development" ? "http://localhost:3000":"https://notaire-tsakadi.tg";
+const _API_BASE_URL_ = (_RUN_MODE_ === "development" ? "http://localhost:3000":"https://notaire-tsakadi.tg")."/wordpress-caching";
+const _AVAILABLE_POST_TYPES_ = ["post", "page"];
 
 function excite(string $_endpoint, array $_data=[]) {
   $data = json_encode(array_merge(['token' => _API_TOKEN_], $_data));
@@ -20,11 +21,6 @@ function excite(string $_endpoint, array $_data=[]) {
   return $result;
 }
 
-function countPublished() {
-    global $wpdb;
-    return $wpdb->get_var( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_type = 'post' and post_status = 'publish'" );
-}
-
 // { Theme supports }
 
 add_theme_support("post-thumbnails");
@@ -32,47 +28,48 @@ add_theme_support("title-tag");
 
 // { Actions }
 
-function postSaved($_id, $_post, $_isUpdate) {
+function post_saved($_id, $_post, $_is_update) {
+    if(!array_search($_post->post_type, _AVAILABLE_POST_TYPES_)) return;
 
-    if($_post->post_type !== "post" && $_post->post_type !== "page") return;
     $status = $_post->post_status === "publish" ? "published":"not_published";
 
-    $endpoint = "/api/". $_post->post_type ."/". ($_isUpdate ? "update":"add");
-    $data = ($_post->post_type === "page") ? [
+    $endpoint = "/". ($_is_update ? "update":"add");
+    $data = [
+        'post_type' => $_post->post_type,
         'id' => $_id,
         'slug' => $_post->post_name,
-        'status' => $status
-    ]:[
-        'id' => $_id,
-        'title' => $_post->post_title,
-        'slug' => $_post->post_name,
-        'excerpt' => $_post->post_excerpt,
         'status' => $status
     ];
+
+    if($_post->post_type !== "page") {
+        $data["title"] = $_post->post_title;
+        $data["_excerpt"] = $_post->post_excerpt;
+    }
 
     excite($endpoint, $data);
 }
 
-function postDeleted($_id, $_post) {
+function post_deleted($_id, $_post) {
 
   if($_post->post_type !== "post") {
     return;
   }
   
-  $endpoint = "/api/post/delete";
+  $endpoint = "/delete";
   $data = [
+    'post_type' => $_post->post_type,
     'id' => $_id
   ];
 
   excite($endpoint, $data);
 }
 
-add_action("save_post", "postSaved", 10, 3);
-add_action("delete_post", "postDeleted", 10, 2);
+add_action("save_post", "post_saved", 10, 3);
+add_action("delete_post", "post_deleted", 10, 2);
 
 // { Ajax }
 
-function loadArticles() {
+function load_articles() {
   header("Access-Control-Allow-Origin: *");
   header("Access-Control-Allow-Methods: Origin, X-Requested-With, Content, Accept, Content-Type, Authorization");
   header("Access-Control-Allow-Headers: GET, POST, PUT, DELETE, PATCH, OPTIONS");
@@ -131,20 +128,7 @@ function loadArticles() {
   exit;
 }
 
-add_action("wp_ajax_articles", "loadArticles");
-add_action("wp_ajax_nopriv_articles", "loadArticles");
-
-// { Short code }
-
-function linkShortCode ($_atts) {
-  $atts = shortcode_atts([
-    'url' => "",
-    'titre' => ""
-  ], $_atts, "lien");
-
-  return empty($atts['url']) ? "":'<div class="nt util-link"><a href="'.$atts['url'].'" title="'.($atts['titre'] ? $atts['titre']:$atts['url']).'" target="_blank"><span class="icofont-link"></span><span>'.($atts['titre'] ? $atts['titre']:$atts['url']).'</span></a></div>';
-}
-
-add_shortcode("lien", "linkShortCode");
+add_action("wp_ajax_articles", "load_articles");
+add_action("wp_ajax_nopriv_articles", "load_articles");
 
 ?>
