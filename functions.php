@@ -68,6 +68,13 @@ add_action("save_post", "post_saved", 10, 3);
 add_action("delete_post", "post_deleted", 10, 2);
 
 // { Ajax }
+const _EMPTY_DATA_ = [
+    'status' => "OK",
+    'content' => [
+        'total' => 0,
+        'list' => []
+    ]
+];
 
 function load_articles() {
   header("Access-Control-Allow-Origin: *");
@@ -80,7 +87,7 @@ function load_articles() {
   $mode = $_POST['mode'] ?? "classic";
 
   if(preg_match("#[^0-9]#", $page)) {
-    echo "[]";
+    echo json_encode($mode === "classic" ? []:_EMPTY_DATA_);
     return;
   }
 
@@ -122,7 +129,7 @@ function load_articles() {
       ]
     ]);
   } else {
-    echo "[]";
+    echo json_encode($mode === "classic" ? []:_EMPTY_DATA_);
   }
 
   exit;
