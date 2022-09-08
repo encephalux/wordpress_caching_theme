@@ -103,7 +103,7 @@ function load_articles()
     $sql_offset = ($per_page * ($page - 1)) + $offset;
 
     global $wpdb;
-    $result = $wpdb->get_results("select ID, post_name, post_title, post_excerpt, post_date from $wpdb->posts where post_type='post' and post_status='publish' limit $sql_offset, $per_page", ARRAY_A);
+    $result = $wpdb->get_results("select ID, post_name, post_title, post_excerpt, post_date from $wpdb->posts where post_type='post' and post_status='publish' order by post_date desc limit $sql_offset, $per_page", ARRAY_A);
 
     $stack = [];
     $count = 0;
