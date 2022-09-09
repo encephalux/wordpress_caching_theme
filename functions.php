@@ -31,7 +31,7 @@ add_theme_support("title-tag");
 
 function post_saved($_id, $_post, $_is_update)
 {
-    if (!array_search($_post->post_type, _AVAILABLE_POST_TYPES_)) return;
+    if(array_search($_post->post_type, _AVAILABLE_POST_TYPES_) === !1) return;
 
     $status = $_post->post_status === "publish" ? "published" : "not_published";
 
@@ -40,11 +40,11 @@ function post_saved($_id, $_post, $_is_update)
         'post_type' => $_post->post_type,
         'id' => $_id,
         'slug' => $_post->post_name,
+        'title' => $_post->post_title,
         'status' => $status
     ];
 
     if ($_post->post_type !== "page") {
-        $data["title"] = $_post->post_title;
         $data["_excerpt"] = $_post->post_excerpt;
     }
 
