@@ -1,8 +1,5 @@
 <?php
-const _RUN_MODE_ = "production";
-const _API_TOKEN_ = "api_token";
-const _API_BASE_URL_ = (_RUN_MODE_ === "development" ? "http://localhost:3000" : "https://notaire-tsakadi.tg") . "/wordpress-caching";
-const _AVAILABLE_POST_TYPES_ = ["post", "page"];
+require_once "env.php";
 
 function excite(string $_endpoint, array $_data = [])
 {
@@ -71,6 +68,7 @@ add_action("save_post", "post_saved", 10, 3);
 add_action("delete_post", "post_deleted", 10, 2);
 
 // { Ajax }
+
 const _EMPTY_DATA_ = [
     'status' => "OK",
     'content' => [
