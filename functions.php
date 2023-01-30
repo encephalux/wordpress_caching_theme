@@ -42,7 +42,7 @@ function post_saved($_id, $_post, $_is_update)
     ];
 
     if ($_post->post_type !== "page") {
-        $data["_excerpt"] = $_post->post_excerpt;
+        $data["excerpt"] = $_post->post_excerpt;
     }
 
     excite($endpoint, $data);
