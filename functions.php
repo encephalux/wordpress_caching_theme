@@ -38,7 +38,8 @@ function post_saved($_id, $_post, $_is_update)
         'id' => $_id,
         'slug' => $_post->post_name,
         'title' => $_post->post_title,
-        'status' => $status
+        'status' => $status,
+        'date' => $_post->post_date
     ];
 
     if ($_post->post_type !== "page") {
