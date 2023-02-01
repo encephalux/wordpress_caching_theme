@@ -1,0 +1,1 @@
+# wordpress_caching_theme
