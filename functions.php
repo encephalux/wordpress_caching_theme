@@ -39,7 +39,9 @@ function post_saved($_id, $_post, $_is_update)
         'slug' => $_post->post_name,
         'title' => $_post->post_title,
         'status' => $status,
-        'date' => $_post->post_date
+        'date' => $_post->post_date,
+        'author' => get_the_author_meta("display_name", $_post->post_author),
+        'thumbnail' => get_the_post_thumbnail_url($_post, "full")
     ];
 
     if ($_post->post_type !== "page") {
