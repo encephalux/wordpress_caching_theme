@@ -33,6 +33,7 @@ function post_saved($_id, $_post, $_is_update)
     $status = $_post->post_status === "publish" ? "published" : "not_published";
 
     $endpoint = "/" . ($_is_update ? "update" : "add");
+    $thumbnail = get_the_post_thumbnail_url($_post, "full");
     $data = [
         'post_type' => $_post->post_type,
         'id' => $_id,
@@ -41,7 +42,7 @@ function post_saved($_id, $_post, $_is_update)
         'status' => $status,
         'date' => $_post->post_date,
         'author' => get_the_author_meta("display_name", $_post->post_author),
-        'thumbnail' =>  get_the_post_thumbnail_url($_post, "full") || ""
+        'thumbnail' => $thumbnail === false ? "":$thumbnail
     ];
 
     if ($_post->post_type !== "page") {
